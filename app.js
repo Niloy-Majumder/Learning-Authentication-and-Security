@@ -3,6 +3,7 @@
 const express = require("express");
 const ejs= require("ejs");
 const mongoose = require("mongoose");
+const encrypt= require("mongoose-encryption");
 
 const app= express();
 
@@ -20,6 +21,9 @@ const userSchema= new mongoose.Schema({
     email: String,
     password: String
 })
+
+var secret= "HelloWorld";
+userSchema.plugin(encrypt,{secret:secret, encryptedFields:['password']});
 
 const User= new mongoose.model("User",userSchema);
 
@@ -41,8 +45,14 @@ app.post("/register",(req,res)=>{
         email:req.body.username,
         password:req.body.password
     })
-    newUser.save();
-    res.render("secrets");
+    newUser.save((err)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+        res.render("secrets");
+        }
+    });
 })
 
 app.post("/login",(req,res)=>{
